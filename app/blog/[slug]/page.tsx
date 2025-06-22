@@ -1,23 +1,28 @@
 import { BlogPostSchema } from "../../../src/lib/schemas"
 import RecipeImage from "components/RecipeImage"
 import ReactMarkdown from 'react-markdown'
+import { collection, getDocs, where, query } from 'firebase/firestore'
+import { db } from '../../../src/lib/firebase'
 
 async function getPost(slug: string) {
   try {
-    const baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : process.env.NODE_ENV === 'production' 
-        ? 'https://n8n-blog-one.vercel.app'
-        : 'http://localhost:3000'
+    const postsCollection = collection(db, 'posts');
+    const q = query(postsCollection, where('slug', '==', slug));
+    const querySnapshot = await getDocs(q);
     
-    const response = await fetch(`${baseUrl}/api/posts/${slug}`)
-    const data = await response.json()
-    
-    if (!data.success || !data.data) {
-      throw new Error(data.error || 'No hay datos')
+    if (querySnapshot.empty) {
+      return null;
     }
     
-    const post = BlogPostSchema.safeParse(data.data)
+    const doc = querySnapshot.docs[0];
+    const postData = {
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt.toDate(),
+      updatedAt: doc.data().updatedAt.toDate(),
+    };
+    
+    const post = BlogPostSchema.safeParse(postData)
     if (!post.success) {
       throw new Error(post.error.message)
     }

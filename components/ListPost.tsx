@@ -1,29 +1,29 @@
 import Link from 'next/link'
 import React from 'react'
 import { BlogPostSchema, BlogPost } from '../src/lib/schemas'
+import { collection, getDocs, orderBy, query } from 'firebase/firestore'
+import { db } from '../src/lib/firebase'
 
 async function getPosts() {
   try {
-    const baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : process.env.NODE_ENV === 'production' 
-        ? 'https://n8n-blog-one.vercel.app'
-        : 'http://localhost:3000'
+    const postsCollection = collection(db, 'posts');
+    const q = query(postsCollection, orderBy('createdAt', 'desc'));
+    const querySnapshot = await getDocs(q);
     
-    const response = await fetch(`${baseUrl}/api/posts`)
-    const data = await response.json()
-    
-    if (!data.success || !data.data) {
-      throw new Error(data.error || 'No hay datos')
-    }
-      
-    // Validar cada post y filtrar los válidos
-    const validPosts = data.data
-      .map((post: any) => BlogPostSchema.safeParse(post))
-      .filter((result: any) => result.success)
-      .map((result: any) => result.data)
-    
-    return validPosts
+    const posts = querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt.toDate(),
+      updatedAt: doc.data().updatedAt.toDate(),
+    }));
+
+    // Validar con Zod antes de enviar
+    const validatedPosts = posts
+      .map(post => BlogPostSchema.safeParse(post))
+      .filter(result => result.success)
+      .map(result => result.data);
+
+    return validatedPosts;
   } catch (error) {
     console.error('Error fetching posts:', error)
     return []

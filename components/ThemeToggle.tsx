@@ -38,7 +38,7 @@ export const ThemeToggle = () => {
                  hover:scale-110 active:scale-95 transition-transform duration-300 cursor-pointer"
     >
       <div
-        className={`absolute inset-0 flex items-center justify-center text-secondary 
+        className={`absolute inset-0 flex items-center justify-center lg:text-secondary 
                    group-hover:text-tertiary hover:text-primary duration-500 ease-in-out transition-all transition-discrete
                    ${isDark 
                      ? 'opacity-0 rotate-180 scale-75' 
@@ -49,7 +49,7 @@ export const ThemeToggle = () => {
       </div>
 
       <div
-        className={`absolute inset-0 flex items-center justify-center text-secondary 
+        className={`absolute inset-0 flex items-center justify-center lg:text-secondary 
                    group-hover:text-tertiary hover:text-primary duration-500 ease-in-out transition-all transition-discrete
                    ${isDark 
                      ? 'opacity-100 rotate-0 scale-100' 

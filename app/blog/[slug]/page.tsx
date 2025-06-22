@@ -33,7 +33,6 @@ async function getPost(slug: string) {
   }
 }
 
-
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await getPost(slug);
@@ -52,7 +51,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         {post.recipes.map((recipe) => (
           <div key={recipe.id} className="flex flex-col gap-2 mt-12 hover:shadow-lg transition-all transition-discrete duration-300">
             <RecipeImage src={recipe.img} alt="imagen de la receta" />
-            <div className='px-2 prose prose-lg max-w-none text-custom-1'>
+            <div className='px-3 prose text-lg max-w-none text-custom-1'>
               <ReactMarkdown>{recipe.recipeText}</ReactMarkdown>
             </div>
           </div>

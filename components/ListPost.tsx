@@ -6,7 +6,9 @@ async function getPosts() {
   try {
     const baseUrl = process.env.VERCEL_URL 
       ? `https://${process.env.VERCEL_URL}` 
-      : 'http://localhost:3000'
+      : process.env.NODE_ENV === 'production' 
+        ? 'https://n8n-blog-one.vercel.app'
+        : 'http://localhost:3000'
     
     const response = await fetch(`${baseUrl}/api/posts`)
     const data = await response.json()

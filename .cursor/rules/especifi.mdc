@@ -1,0 +1,26 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+Blog
+
+## Especificaciones 
+- proyecto con nextjs
+- db usar -> firestore
+- hacer un swagger para especificar API
+#### Uso:
+	1_ Desde n8n se van a generar recetas e imagenes.
+	2_ Se envia esa informacion a la api del blog.
+	3_ La api tiene que recibir la informacion y mostrarla
+	*_ Especificar api con swagger.
+
+### Estructura:
+- 2 pages
+    1_ Page principal donde se iteran todos los post que se hagan en el blog
+    2_ Page por post, informacion completa del post. 
+
+#### N8N
+
+
+- n8n ya esta completo!

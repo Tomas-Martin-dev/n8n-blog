@@ -13,13 +13,13 @@ export const IncomingPostSchema = z.object({
 });
 
 export const BlogPostSchema = z.object({
-  id: z.string().optional(),
-  title: z.string(),
-  description: z.string(),
-  recipes: z.array(RecipeSchema),
-  createdAt: z.coerce.date(), 
-  updatedAt: z.coerce.date(),
-  slug: z.string(),
+  id: z.string(),
+  title: z.string().min(1, 'El título es requerido'),
+  description: z.string().min(1, 'La descripción es requerida'),
+  recipes: z.array(RecipeSchema).min(1, 'Debe haber al menos una receta'),
+  createdAt: z.date(), 
+  updatedAt: z.date(),
+  slug: z.string().min(1, 'El slug es requerido'),
 });
 
 export const ApiResponseSchema = <T extends z.ZodType>(dataSchema: T) =>

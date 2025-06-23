@@ -4,34 +4,67 @@ import { BlogPostSchema, BlogPost } from '../src/lib/schemas'
 import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import { db } from '../src/lib/firebase'
 
+// Forzar renderizado del lado del servidor
+export const dynamic = 'force-dynamic'
+export const runtime = 'nodejs'
+
 async function getPosts() {
+  console.log("🔍 Iniciando getPosts");
+  
   try {
+    // Verificar conexión a Firebase
+    if (!db) {
+      console.error("❌ Firebase DB no está inicializada en ListPost");
+      throw new Error("Firebase DB no está inicializada");
+    }
+
     const postsCollection = collection(db, 'posts');
     const q = query(postsCollection, orderBy('createdAt', 'desc'));
+    
+    console.log("🔥 Ejecutando consulta para todos los posts...");
     const querySnapshot = await getDocs(q);
     
-    const posts = querySnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: doc.data().createdAt.toDate(),
-      updatedAt: doc.data().updatedAt.toDate(),
-    }));
+    console.log("📊 Total de documentos encontrados:", querySnapshot.size);
+    
+    const posts = querySnapshot.docs.map(doc => {
+      const rawData = doc.data();
+      console.log("📄 Procesando documento con ID:", doc.id);
+      
+      return {
+        id: doc.id,
+        ...rawData,
+        createdAt: rawData.createdAt?.toDate() || new Date(),
+        updatedAt: rawData.updatedAt?.toDate() || new Date(),
+      };
+    });
+
+    console.log("📋 Posts procesados:", posts.length);
 
     // Validar con Zod antes de enviar
     const validatedPosts = posts
-      .map(post => BlogPostSchema.safeParse(post))
+      .map((post, index) => {
+        const result = BlogPostSchema.safeParse(post);
+        if (!result.success) {
+          console.warn(`⚠️ Post ${index} falló validación:`, result.error.format());
+        }
+        return result;
+      })
       .filter(result => result.success)
       .map(result => result.data);
 
+    console.log("✅ Posts validados:", validatedPosts.length);
     return validatedPosts;
   } catch (error) {
-    console.error('Error fetching posts:', error)
+    console.error('❌ Error completo en getPosts:', error);
+    console.error('Stack trace:', (error as Error).stack);
     return []
   }
 }
 
 export default async function ListPost() {
+  console.log("🚀 Iniciando ListPost component");
   const posts = await getPosts();
+  console.log("📋 Posts obtenidos en ListPost:", posts.length);
 
   if (posts.length === 0) {
     return (

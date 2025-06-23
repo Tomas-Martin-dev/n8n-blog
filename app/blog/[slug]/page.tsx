@@ -5,6 +5,8 @@ import { collection, getDocs, where, query } from 'firebase/firestore'
 import { db } from '../../../src/lib/firebase'
 
 async function getPost(slug: string) {
+  console.log("se inicia la funcion getPost");
+  
   try {
     const postsCollection = collection(db, 'posts');
     const q = query(postsCollection, where('slug', '==', slug));
@@ -15,12 +17,16 @@ async function getPost(slug: string) {
     }
     
     const doc = querySnapshot.docs[0];
+    console.log(doc.data());
+    console.log(doc);
+    
     const postData = {
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt.toDate(),
       updatedAt: doc.data().updatedAt.toDate(),
     };
+    console.log(postData);
     
     const post = BlogPostSchema.safeParse(postData)
     if (!post.success) {

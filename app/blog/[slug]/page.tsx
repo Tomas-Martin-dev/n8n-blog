@@ -5,10 +5,6 @@ import { collection, getDocs, where, query } from 'firebase/firestore'
 import { db } from '../../../src/lib/firebase'
 import { notFound } from 'next/navigation'
 
-
-export const dynamic = 'force-dynamic'
-export const runtime = 'nodejs'
-
 async function getPost(slug: string) {
   try {
     if (!db) {

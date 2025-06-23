@@ -3,12 +3,11 @@ import React from 'react'
 import { BlogPostSchema, BlogPost } from '../src/lib/schemas'
 import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import { db } from '../src/lib/firebase'
+import { unstable_noStore as noStore } from 'next/cache';
 
 
-export const dynamic = 'force-dynamic'
-export const runtime = 'nodejs'
-
-async function getPosts() {
+async function getPosts() {  
+  noStore();
   try {
     if (!db) {
       throw new Error("Firebase DB no está inicializada");
@@ -16,9 +15,9 @@ async function getPosts() {
 
     const postsCollection = collection(db, 'posts');
     const q = query(postsCollection, orderBy('createdAt', 'desc'));
-    
     const querySnapshot = await getDocs(q);
-
+    
+    
     const posts = querySnapshot.docs.map(doc => {
       const rawData = doc.data();
       
@@ -35,6 +34,7 @@ async function getPosts() {
       .map((post, index) => {
         const result = BlogPostSchema.safeParse(post);
         if (!result.success) {
+          console.error(`Post ${index} falló validación:`, result.error.format());
         }
         return result;
       })
@@ -43,14 +43,14 @@ async function getPosts() {
 
     return validatedPosts;
   } catch (error) {
+    console.error(`Error en getPosts:`, error);
     return []
   }
 }
 
 export default async function ListPost() {
   const posts = await getPosts();
-  console.log(posts);
-  
+
   if (posts.length === 0) {
     return (
       <div className='mt-24 border border-[var(--color-background-2)] rounded-lg shadow-lg py-6 px-3'>
